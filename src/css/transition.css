@@ -1,0 +1,20 @@
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+
+/* 上方进入 */
+.top-enter-active, .top-leave-active {
+    transition: all 0.25s ease-out;
+}
+
+.top-enter-from, .top-leave-to {
+    opacity: 0;
+    transform: translateY(-2rem);
+}

@@ -1,12 +1,10 @@
 <script setup>
-import Header from '@/Header.vue'
 </script>
 
 <template>
   <n-message-provider>
-    <Header></Header>
-    <router-view></router-view>
-    <footer></footer>
+    <Navigation key="navigation"/>
+    <router-view key="router"/>
   </n-message-provider>
 </template>
 

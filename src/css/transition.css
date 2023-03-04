@@ -9,12 +9,15 @@
 }
 
 
-/* 上方进入 */
-.top-enter-active, .top-leave-active {
-    transition: all 0.25s ease-out;
+.rotate-leave-active {
+    transition: all 0.4s ease-in;
 }
 
-.top-enter-from, .top-leave-to {
+.rotate-enter-active {
+    transition: all 0.4s ease-out;
+}
+
+.rotate-leave-to, .rotate-enter-from {
     opacity: 0;
-    transform: translateY(-2rem);
+    transform: rotate(-60deg);
 }

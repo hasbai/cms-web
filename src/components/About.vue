@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 
-import config from '../package.json'
+import config from '../../package.json'
 
 const name = config.name.replaceAll('-', ' ')
 </script>

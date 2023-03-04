@@ -4,7 +4,16 @@
 @tailwind utilities;
 
 html {
-    overflow: hidden;
+    overflow-y: hidden;
+}
+
+html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+:root {
+    --color: white;
 }
 
 #app {
@@ -12,7 +21,7 @@ html {
     height: 100vh;
     margin-right: calc(100% - 100vw);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 main {
@@ -20,13 +29,45 @@ main {
     flex: 1;
     flex-direction: column;
     align-items: center;
-    max-width: 1080px;
-    margin: 0.5rem auto 2rem;
-    height: 0; /* prevents overflow */
-}
-
-footer {
     width: 100%;
+    max-width: 1080px;
+    margin: 0.5rem auto;
+    padding: 0 1rem;
+    overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+    main::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    main::-webkit-scrollbar-track {
+        background: white;
+        border-radius: 2px;
+    }
+
+    main::-webkit-scrollbar-thumb {
+        background: rgb(210, 210, 210);
+        border-radius: 8px;
+    }
+
+    main::-webkit-scrollbar-thumb:hover {
+        background: rgb(180, 180, 180);
+    }
+
+    main::-webkit-scrollbar-corner {
+        background: #179a16;
+    }
 }
 
 
+header {
+    height: 3rem;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.n-menu-item:first-child {
+    margin: 1rem 0;
+}

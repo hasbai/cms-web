@@ -4,6 +4,9 @@ import path from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import IconsResolver from 'unplugin-icons/resolver'
+import Icons from 'unplugin-icons/vite'
+import vuetify from 'vite-plugin-vuetify'
 
 export default defineConfig({
   resolve: {
@@ -28,8 +31,19 @@ export default defineConfig({
         },
       ],
     }),
+    vuetify({ autoImport: true }),
+    Icons({
+      autoInstall: true,
+      compiler: 'vue3',
+    }),
     Components({
-      resolvers: [NaiveUiResolver()],
+      resolvers: [
+        NaiveUiResolver(),
+        IconsResolver({
+          prefix: false,
+          enabledCollections: ['mdi'],
+        }),
+      ],
     }),
   ],
   define: {
@@ -42,10 +56,6 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
         secure: false,
-      },
-      '/rtc': {
-        target: 'https://live.x.hath.top:8443/',
-        changeOrigin: true,
       },
     },
   },

@@ -47,8 +47,7 @@ const menuOptions: MenuOption[] = [
 
 <style>
 #menu {
-  background: white;
-  height: 100%;
+  flex-shrink: 0;
   transition: width 0.8s;
 }
 

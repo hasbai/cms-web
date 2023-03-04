@@ -14,6 +14,7 @@ export const mainStore = defineStore('main', {
   state: () => {
     return {
       showMenu: false,
+      contents: [],
     }
   },
   actions: {},

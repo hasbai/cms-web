@@ -51,11 +51,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/ws': {
-        target: 'http://localhost:8000/',
+      '/api': {
+        target: 'https://cms.x.hath.top:8443',
         changeOrigin: true,
-        ws: true,
-        secure: false,
       },
     },
   },

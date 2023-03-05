@@ -82,7 +82,7 @@ main {
     bottom: 1.5rem;
     right: 1.5rem;
     background-color: var(--color);
-    z-index: 1;
+    z-index: 999;
 }
 
 .fixed-btn svg {

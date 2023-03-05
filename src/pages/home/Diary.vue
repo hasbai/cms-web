@@ -1,8 +1,10 @@
 <template>
   <n-timeline>
-    <n-timeline-item v-for="content in store.contents" :key="content.id">
-      <Content :content="content"/>
-    </n-timeline-item>
+    <transition-group name="list">
+      <n-timeline-item v-for="content in store.contents" :key="content.id">
+        <Content :content="content"/>
+      </n-timeline-item>
+    </transition-group>
   </n-timeline>
 </template>
 

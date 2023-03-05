@@ -11,8 +11,10 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     About: typeof import('./src/components/About.vue')['default']
     Bar: typeof import('./src/components/Bar.vue')['default']
+    MdiArchiveArrowDownOutline: typeof import('~icons/mdi/archive-arrow-down-outline')['default']
     MdiArrowLeft: typeof import('~icons/mdi/arrow-left')['default']
     MdiCheck: typeof import('~icons/mdi/check')['default']
+    MdiDeleteOutline: typeof import('~icons/mdi/delete-outline')['default']
     MdiMenu: typeof import('~icons/mdi/menu')['default']
     MdiMenuClose: typeof import('~icons/mdi/menu-close')['default']
     MdiPencilOutline: typeof import('~icons/mdi/pencil-outline')['default']

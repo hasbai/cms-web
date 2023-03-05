@@ -21,16 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-interface ContentType {
-  id: number
-  author: string
-  title: string
-  text: string
-  created_at: string
-  updated_at: string
-}
-
-const {content} = defineProps<{ content: ContentType }>()
+const {content} = defineProps<{ content: Content }>()
 const cratedAt = new Date(content.created_at).toISOString()
 </script>
 

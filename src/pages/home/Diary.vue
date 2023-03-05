@@ -1,6 +1,6 @@
 <template>
   <n-timeline>
-    <n-timeline-item v-for="(content, i) in store.contents" :key="i">
+    <n-timeline-item v-for="content in store.contents" :key="content.id">
       <Content :content="content"/>
     </n-timeline-item>
   </n-timeline>
@@ -12,10 +12,7 @@ import {mainStore} from "@/plugins/store";
 
 const store = mainStore()
 
-onBeforeMount(async () => {
-  const r = await fetch('/api/content?order=id.desc')
-  store.contents = await r.json()
-})
+store.loadContents()
 
 </script>
 

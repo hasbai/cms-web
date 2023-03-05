@@ -16,6 +16,10 @@ html::-webkit-scrollbar {
     --color: white;
 }
 
+body {
+    font-size: 1rem;
+}
+
 #app {
     width: 100vw;
     height: 100vh;
@@ -71,4 +75,17 @@ main {
 
 .n-menu-item:first-child {
     margin: 1rem 0;
+}
+
+.fixed-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background-color: var(--color);
+    z-index: 1;
+}
+
+.fixed-btn svg {
+    width: 1.75rem;
+    height: 1.75rem;
 }

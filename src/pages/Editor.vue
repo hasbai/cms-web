@@ -37,7 +37,7 @@ const send = async () => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
+      'Prefer': 'return=representation,resolution=merge-duplicates',
     },
     body: JSON.stringify(content)
   })

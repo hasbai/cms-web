@@ -9,10 +9,8 @@
       </div>
     </div>
 
-    <div v-ripple class="content flex align-center flex-1 ml-4">
-      <!--      <div class="text-end small">-->
-      <!--        {{ cratedAt.substring(11, 16) }}-->
-      <!--      </div>-->
+    <div v-ripple
+         class="content flex align-center flex-1 ml-4" @click="router.push(`/edit/${content.id}`)">
       <n-ellipsis :line-clamp="5" :tooltip="false">
         {{ content.text }}
       </n-ellipsis>
@@ -21,8 +19,13 @@
 </template>
 
 <script lang="ts" setup>
+import {Content} from '@/models'
+import {useRouter} from 'vue-router'
+
 const {content} = defineProps<{ content: Content }>()
 const cratedAt = new Date(content.created_at).toISOString()
+
+const router = useRouter()
 </script>
 
 <style scoped>

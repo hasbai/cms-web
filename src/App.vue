@@ -6,7 +6,9 @@
         <AppBar/>
         <router-view v-slot="{ Component }">
           <transition mode="out-in" name="fade">
-            <component :is="Component"/>
+            <keep-alive>
+              <component :is="Component"/>
+            </keep-alive>
           </transition>
         </router-view>
       </div>

@@ -126,6 +126,7 @@ async function archiveContent() {
   padding: 0.5rem;
   border-radius: 0.5rem;
   cursor: pointer;
+  white-space: pre-wrap;
 }
 
 .delete {

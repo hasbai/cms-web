@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div ref="editorDiv"></div>
+    <div ref="editorEl"></div>
     <v-btn :loading="loading" class="fixed-btn" icon size="large" @click="send">
       <mdi-check/>
     </v-btn>
@@ -62,86 +62,96 @@ const store = mainStore()
 const config = configStore()
 const route = useRoute()
 
+let content: Content
 let fromDraft = false
-let content = store.contents.find(c => c.id === parseInt(route.params.id as string))!
-if (!content) {
-  content = config.draft
-  fromDraft = true
-}
-content.text = content.text || ''
 
-const editorDiv = ref()
+const editorEl = ref<HTMLInputElement>()
 let editor: EditorJS
-onMounted(() => {
-  editor = new EditorJS({
-    readOnly: false,
-    holder: editorDiv.value,
-    minHeight: 300,
-    placeholder: '说些什么...',
-    logLevel: 'WARN' as any,
-    tools: {
-      header: {
-        class: Header,
-        inlineToolbar: ['link'],
-        config: {
-          placeholder: 'Header'
+
+onActivated(async () => {
+  content = store.contents.find(c => c.id === parseInt(route.params.id as string))!
+  if (!content) {
+    content = config.draft
+    fromDraft = true
+  }
+  content.text = content.text || ''
+
+  if (!editor) {
+    editor = new EditorJS({
+      readOnly: false,
+      holder: editorEl.value,
+      minHeight: 300,
+      placeholder: '说些什么...',
+      logLevel: 'WARN' as any,
+      tools: {
+        header: {
+          class: Header,
+          inlineToolbar: ['link'],
+          config: {
+            placeholder: 'Header'
+          },
+          shortcut: 'CMD+SHIFT+H'
         },
-        shortcut: 'CMD+SHIFT+H'
-      },
-      image: {
-        class: SimpleImage,
-        inlineToolbar: true
-      },
-      list: {
-        class: List,
-        inlineToolbar: true,
-        shortcut: 'CMD+SHIFT+L'
-      },
-      checklist: {
-        class: Checklist,
-        inlineToolbar: true
-      },
-      quote: {
-        class: Quote,
-        inlineToolbar: true,
-        config: {
-          quotePlaceholder: 'Enter a quote',
-          captionPlaceholder: "Quote's author"
+        image: {
+          class: SimpleImage,
+          inlineToolbar: true
         },
-        shortcut: 'CMD+SHIFT+O'
+        list: {
+          class: List,
+          inlineToolbar: true,
+          shortcut: 'CMD+SHIFT+L'
+        },
+        checklist: {
+          class: Checklist,
+          inlineToolbar: true
+        },
+        quote: {
+          class: Quote,
+          inlineToolbar: true,
+          config: {
+            quotePlaceholder: 'Enter a quote',
+            captionPlaceholder: "Quote's author"
+          },
+          shortcut: 'CMD+SHIFT+O'
+        },
+        code: {
+          class: Code,
+          shortcut: 'CMD+SHIFT+C'
+        },
+        delimiter: Delimiter,
+        inlineCode: {
+          class: InlineCode,
+          shortcut: 'CMD+SHIFT+C'
+        },
+        linkTool: LinkTool,
+        embed: Embed,
+        table: {
+          class: Table,
+          inlineToolbar: true,
+          shortcut: 'CMD+ALT+T'
+        },
+        math: {
+          class: MathTex
+        }
       },
-      code: {
-        class: Code,
-        shortcut: 'CMD+SHIFT+C'
+      data: {
+        blocks: parseMarkdownToEditorJs(content.text)
       },
-      delimiter: Delimiter,
-      inlineCode: {
-        class: InlineCode,
-        shortcut: 'CMD+SHIFT+C'
+      onChange: async (api, event) => {
+        const data = await api.saver.save()
+        content.text = parseEditorJsToMarkdown(data.blocks)
       },
-      linkTool: LinkTool,
-      embed: Embed,
-      table: {
-        class: Table,
-        inlineToolbar: true,
-        shortcut: 'CMD+ALT+T'
-      },
-      math: {
-        class: MathTex
-      }
-    },
-    data: {blocks: parseMarkdownToEditorJs(content.text)},
-    onChange: async (api, event) => {
-      const data = await api.saver.save()
-      content.text = parseEditorJsToMarkdown(data.blocks)
-    },
-  })
+    })
+    await editor.isReady
+  } else {
+    if (content.text === '') {
+      // editor.render() throws 'holder is undefined' when content is empty
+      await editor.clear()
+    } else {
+      await editor.render({
+        blocks: parseMarkdownToEditorJs(content.text)
+      })
+    }
+  }
 })
 </script>
-
-<style>
-.ce-block__content,
-.ce-toolbar__content {
-  /*  max-width: var(--editor-max-width); */
-}
-</style>

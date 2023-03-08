@@ -11,6 +11,11 @@ const routes = [
     component: () => import('@/pages/Editor.vue'),
     name: 'Editor',
   },
+  {
+    path: '/pacman',
+    component: () => import('@/pages/Pacman.vue'),
+    name: 'Pacman',
+  },
 ]
 
 const router = createRouter({

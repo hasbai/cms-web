@@ -25,11 +25,13 @@ export function parseHTMLToParagraph(element: Element) {
     if (child.tagName === 'IMG') {
       paragraphs.push({
         data: {
+          file: {
+            url: child.getAttribute('src'),
+          },
           caption: child.getAttribute('alt'),
           stretched: false,
-          url: child.getAttribute('src'),
           withBackground: false,
-          withBorder: true,
+          withBorder: false,
         },
         type: 'image',
       })

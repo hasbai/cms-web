@@ -8,9 +8,9 @@
 </template>
 
 <script lang="ts" setup>
-import EditorJS from '@editorjs/editorjs'
+import EditorJS, {API} from '@editorjs/editorjs'
 import Header from '@editorjs/header'
-import SimpleImage from '@editorjs/simple-image'
+import ImageTool from '@editorjs/image';
 import List from '@editorjs/list'
 import Checklist from '@editorjs/checklist'
 import Quote from '@editorjs/quote'
@@ -78,8 +78,13 @@ onActivated(async () => {
           shortcut: 'CMD+SHIFT+H'
         },
         image: {
-          class: SimpleImage,
-          inlineToolbar: true
+          class: ImageTool,
+          config: {
+            uploader: {
+              uploadByFile,
+              uploadByUrl,
+            }
+          }
         },
         list: {
           class: List,
@@ -122,10 +127,7 @@ onActivated(async () => {
       data: {
         blocks: parseMarkdownToEditorJs(content.text)
       },
-      onChange: async (api, event) => {
-        const data = await api.saver.save()
-        content.text = parseEditorJsToMarkdown(data.blocks)
-      },
+      onChange: onChange,
     })
     await editor.isReady
   } else {
@@ -136,7 +138,41 @@ onActivated(async () => {
       await editor.render({
         blocks: parseMarkdownToEditorJs(content.text)
       })
+      console.log(parseMarkdownToEditorJs(content.text))
     }
   }
 })
+
+async function onChange(api: API, event: any) {
+  const data = await api.saver.save()
+  content.text = parseEditorJsToMarkdown(data.blocks)
+  console.log(data.blocks)
+}
+
+async function uploadByFile(file: File) {
+  const r = await fetch('/api/rpc/upload', {
+    method: 'POST',
+    body: file,
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      'Type': file.type
+    }
+  })
+  const data = await r.json()
+  return {
+    success: 1,
+    file: {
+      url: '/api/rpc/file?id=' + data.id,
+    }
+  }
+}
+
+async function uploadByUrl(url: string) {
+  return {
+    success: 1,
+    file: {
+      url: url,
+    }
+  }
+}
 </script>

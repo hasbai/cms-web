@@ -1,69 +1,69 @@
 declare module '@editorjs/header' {
-  const Header: any
-  export default Header
+    const Header: any
+    export default Header
 }
 
 declare module '@editorjs/list' {
-  const List: any
-  export default List
+    const List: any
+    export default List
 }
 
 declare module '@editorjs/embed' {
-  const Embed: any
-  export default Embed
+    const Embed: any
+    export default Embed
 }
 
-declare module '@editorjs/simple-image' {
-  const SimpleImage: any
-  export default SimpleImage
+declare module '@editorjs/image' {
+    const ImageTool: any
+    export default ImageTool
 }
 
 declare module '@editorjs/checklist' {
-  const Checklist: any
-  export default Checklist
+    const Checklist: any
+    export default Checklist
 }
 
 declare module '@editorjs/table' {
-  const Table: any
-  export default Table
+    const Table: any
+    export default Table
 }
 
 declare module '@editorjs/delimiter' {
-  const Delimiter: any
-  export default Delimiter
+    const Delimiter: any
+    export default Delimiter
 }
 
 declare module '@editorjs/quote' {
-  const Quote: any
-  export default Quote
+    const Quote: any
+    export default Quote
 }
 
 declare module '@editorjs/link' {
-  const LinkTool: any
-  export default LinkTool
+    const LinkTool: any
+    export default LinkTool
 }
 
 declare module '@editorjs/code' {
-  const CodeTool: any
-  export default CodeTool
+    const CodeTool: any
+    export default CodeTool
 }
 
 declare module '@editorjs/warning' {
-  const Warning: any
-  export default Warning
+    const Warning: any
+    export default Warning
 }
 
 declare module '@editorjs/marker' {
-  const Marker: any
-  export default Marker
+    const Marker: any
+    export default Marker
 }
 
 declare module '@editorjs/inline-code' {
-  const InlineCode: any
-  export default InlineCode
+    const InlineCode: any
+    export default InlineCode
 }
 
 declare module 'editorjs-math' {
-  const MathTex: any
-  export default MathTex
+    const MathTex: any
+    export default MathTex
 }

@@ -64,13 +64,8 @@ class Client extends BaseClient {
     }
     const r = await super.request(method, url, body)
     if (r.status === 401) {
-      const res = await r.json()
-      if (res.code === 'PGRST301') {
-        // JWT expired
-        // auth.refresh()
-      } else {
-        auth.login()
-      }
+      auth.login()
+      throw new Error('Token Invalid')
     }
     return r
   }

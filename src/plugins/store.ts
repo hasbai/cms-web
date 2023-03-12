@@ -1,5 +1,8 @@
-import { defineStore } from 'pinia'
+import { createPinia, defineStore } from 'pinia'
 import { Content } from '@/models'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { App } from 'vue'
+import { client } from '@/plugins/client'
 
 export const configStore = defineStore('config', {
   state: () => {
@@ -21,20 +24,18 @@ export const mainStore = defineStore('main', {
   },
   actions: {
     async loadContents() {
-      const r = await fetch('/api/content?order=id.desc')
+      const r = await client.get('/content?order=id.desc')
       if (!r.ok) throw new Error(await r.text())
       this.contents = await r.json()
     },
     async deleteContent(id: number) {
-      const r = await fetch(`/api/content?id=eq.${id}`, {
-        method: 'DELETE',
-      })
+      const r = await client.del(`/content?id=eq.${id}`)
       if (!r.ok) throw new Error(await r.text())
       this.contents = this.contents.filter((c) => c.id !== id)
     },
     async archiveContent(id: number) {
       console.log('archiving', id)
-      // const r = await fetch(`/api/content?id=eq.${id}`, {
+      // const r = await fetch(`/content?id=eq.${id}`, {
       //   method: 'PATCH',
       //   body: JSON.stringify({ archived: true }),
       // })
@@ -42,3 +43,9 @@ export const mainStore = defineStore('main', {
     },
   },
 })
+
+export const registerPinia = (app: App) => {
+  const pinia = createPinia()
+  pinia.use(piniaPluginPersistedstate)
+  app.use(pinia)
+}

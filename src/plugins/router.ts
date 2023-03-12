@@ -12,6 +12,11 @@ const routes = [
     name: 'Editor',
   },
   {
+    path: '/callback',
+    component: () => import('@/pages/Callback.vue'),
+    name: 'Callback',
+  },
+  {
     path: '/pacman',
     component: () => import('@/pages/Pacman.vue'),
     name: 'Pacman',

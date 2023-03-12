@@ -26,6 +26,7 @@ import {parseEditorJsToMarkdown, parseMarkdownToEditorJs} from '@/utils/editor'
 import {configStore, mainStore} from "@/plugins/store";
 import {useRoute, useRouter} from "vue-router";
 import {Content} from "@/models";
+import {client} from "@/plugins/client";
 
 const router = useRouter()
 const loading = ref(false)
@@ -33,14 +34,7 @@ const send = async () => {
   loading.value = true
   const data = await editor.save()
   content.text = parseEditorJsToMarkdown(data.blocks)
-  const r = await fetch('/api/content', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation,resolution=merge-duplicates',
-    },
-    body: JSON.stringify(content)
-  })
+  const r = await client.post('/content', content)
   loading.value = false
   if (r.status === 201) {
     const data = await r.json()

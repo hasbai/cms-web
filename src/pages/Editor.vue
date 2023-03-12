@@ -23,50 +23,41 @@ import Table from '@editorjs/table'
 import MathTex from 'editorjs-math'
 
 import {parseEditorJsToMarkdown, parseMarkdownToEditorJs} from '@/utils/editor'
-import {configStore, mainStore} from "@/plugins/store";
+import {mainStore} from "@/plugins/store";
 import {useRoute, useRouter} from "vue-router";
 import {Content} from "@/models";
-import {client} from "@/plugins/client";
 
 const router = useRouter()
 const loading = ref(false)
 const send = async () => {
   loading.value = true
+
   const data = await editor.save()
   content.text = parseEditorJsToMarkdown(data.blocks)
-  const r = await client.post('/content', content)
+  await store.addContent(content)
+
   loading.value = false
-  if (r.status === 201) {
-    const data = await r.json()
-    const content = data[0] as Content
-    if (fromDraft) {
-      store.contents.push(content)
-      config.draft = {} as Content
-    } else {
-      const i = store.contents.findIndex(c => c.id === content.id)
-      store.contents[i] = content
-    }
-    await router.push('/')
-  } else {
-    console.error(await r.text())
-  }
+  await router.push('/')
 }
 
 const store = mainStore()
-const config = configStore()
 const route = useRoute()
 
 let content: Content
-let fromDraft = false
 
 const editorEl = ref<HTMLInputElement>()
 let editor: EditorJS
 
 onActivated(async () => {
-  content = store.contents.find(c => c.id === parseInt(route.params.id as string))!
+  const id = parseInt(route.params.id as string)
+  content = store.contents.find(c => c.id === id)!
   if (!content) {
-    content = config.draft
-    fromDraft = true
+    if (id) {
+      content = (await store.getContent(id))!
+    }
+    if (!content) {
+      content = store.draft
+    }
   }
   content.text = content.text || ''
 

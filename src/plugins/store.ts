@@ -8,7 +8,6 @@ export const configStore = defineStore('config', {
   state: () => {
     return {
       color: '#00796B',
-      draft: {} as Content,
     }
   },
   actions: {},
@@ -19,14 +18,34 @@ export const mainStore = defineStore('main', {
   state: () => {
     return {
       showMenu: false,
+      draft: {} as Content,
       contents: new Array<Content>(),
     }
   },
   actions: {
+    async getContent(id: number) {
+      const r = await client.get(`/content?id=eq.${id}`)
+      const data = (await r.json()) as Content[]
+      if (data.length === 0) return null
+      return data[0]
+    },
     async loadContents() {
       const r = await client.get('/content?order=id.desc')
       if (!r.ok) throw new Error(await r.text())
       this.contents = await r.json()
+    },
+    async addContent(content: Content) {
+      const fromDraft = !content.id
+      const r = await client.post('/content', content)
+      const data = await r.json()
+      content = data[0] as Content
+      if (fromDraft) {
+        this.contents.unshift(content)
+        this.draft = {} as Content
+      } else {
+        const i = this.contents.findIndex((c) => c.id === content.id)
+        this.contents[i] = content
+      }
     },
     async deleteContent(id: number) {
       const r = await client.del(`/content?id=eq.${id}`)
@@ -41,6 +60,9 @@ export const mainStore = defineStore('main', {
       // })
       // if (!r.ok) throw new Error(await r.text())
     },
+  },
+  persist: {
+    paths: ['draft'],
   },
 })
 

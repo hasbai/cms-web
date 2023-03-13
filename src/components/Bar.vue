@@ -24,10 +24,17 @@ const store = mainStore()
 
 const config = configStore()
 const root = document.querySelector(":root") as HTMLElement
-root.style.setProperty('--color', config.color)
+
+setTheme(config.color)
 watch(() => config.color, (color) => {
-  root.style.setProperty('--color', color)
+  setTheme(color)
 })
+
+function setTheme(theme: string) {
+  root.style.setProperty('--color', theme)
+  const meta = document.querySelector('meta[name="theme-color"]')!
+  meta.setAttribute('content', theme)
+}
 
 const route = useRoute()
 const isHome = computed(() => route.name === 'Home')

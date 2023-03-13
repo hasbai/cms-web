@@ -146,7 +146,6 @@ onActivated(async () => {
 async function onChange(api: API, event: any) {
   const data = await api.saver.save()
   content.text = parseEditorJsToMarkdown(data.blocks)
-  console.log(data.blocks)
 }
 
 async function uploadByFile(file: File) {

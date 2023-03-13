@@ -13,8 +13,10 @@ import Content from "./diary/Content.vue";
 import {mainStore} from "@/plugins/store";
 
 const store = mainStore()
-
-store.loadContents()
+onActivated(() => {
+  if (store.contents.length > 0) return
+  store.loadContents()
+})
 
 </script>
 

@@ -108,12 +108,10 @@ async function archiveContent() {
   color: rgb(128, 128, 128);
 }
 
-.content-container {
-
-}
-
-.content-container:hover .hover {
-  display: flex;
+@media (min-width: 768px) {
+  .content-container:hover .hover {
+    display: flex;
+  }
 }
 
 .hover button {

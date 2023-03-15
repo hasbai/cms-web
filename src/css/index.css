@@ -24,6 +24,7 @@ body {
     width: 100vw;
     height: 100vh;
     margin-right: calc(100% - 100vw);
+    background: #f3f3f3;
 }
 
 #app > div {
@@ -43,7 +44,6 @@ main {
     margin: 0 auto;
     padding: 1rem;
     overflow-y: auto;
-    background: #f3f3f3;
 }
 
 @media (min-width: 768px) {

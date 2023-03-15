@@ -5,14 +5,17 @@ export interface Content {
   text: string
   created_at: string
   updated_at: string
+  coordinate: string
+  address: string
+  weather: string
 }
 
-export function newDraft() {
+export function newContent() {
   return {
     author: '',
     title: '',
     text: '',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
+    address: '',
+    weather: '',
+  } as Content
 }

@@ -43,6 +43,7 @@ main {
     margin: 0 auto;
     padding: 1rem;
     overflow-y: auto;
+    background: #f3f3f3;
 }
 
 @media (min-width: 768px) {

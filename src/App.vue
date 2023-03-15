@@ -2,7 +2,7 @@
   <n-config-provider :theme-overrides="themeOverrides">
     <n-message-provider>
       <Navigation/>
-      <div class="container flex flex-column flex-1">
+      <div class="flex flex-column flex-1">
         <AppBar/>
         <router-view v-slot="{ Component }">
           <transition mode="out-in" name="fade">
@@ -27,9 +27,3 @@ const themeOverrides: GlobalThemeOverrides = {
   },
 }
 </script>
-
-<style>
-.container {
-  background: #f3f3f3;
-}
-</style>

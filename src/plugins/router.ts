@@ -8,7 +8,7 @@ const routes = [
   },
   {
     path: '/edit/:id(\\d+)?',
-    component: () => import('@/pages/Editor.vue'),
+    component: () => import('@/pages/Edit.vue'),
     name: 'Editor',
   },
   {

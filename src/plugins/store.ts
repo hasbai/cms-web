@@ -1,5 +1,5 @@
 import { createPinia, defineStore } from 'pinia'
-import { Content } from '@/models'
+import { Content, newContent } from '@/models'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { App } from 'vue'
 import { client } from '@/plugins/client'
@@ -18,7 +18,7 @@ export const mainStore = defineStore('main', {
   state: () => {
     return {
       showMenu: false,
-      draft: {} as Content,
+      draft: newContent(),
       contents: new Array<Content>(),
     }
   },

@@ -1,24 +1,33 @@
 <template>
-  <div id="editor" ref="editorEl"></div>
+  <div ref="editorRef" autofocus class="mb-2"/>
 </template>
 
 <script lang="ts" setup>
-import {computed, ref} from "vue";
-import EditorJS, {API} from "@editorjs/editorjs";
-import Header from "@editorjs/header";
-import ImageTool from "@editorjs/image";
-import List from "@editorjs/list";
-import Checklist from "@editorjs/checklist";
-import Quote from "@editorjs/quote";
-import Code from "@editorjs/code";
-import Delimiter from "@editorjs/delimiter";
-import InlineCode from "@editorjs/inline-code";
-import LinkTool from "@editorjs/link";
-import Embed from "@editorjs/embed";
-import Table from "@editorjs/table";
-import MathTex from "editorjs-math";
-import {parseEditorJsToMarkdown, parseMarkdownToEditorJs} from "@/utils/editor";
+import {computed} from "vue";
 import {Content} from "@/models";
+
+// milkdown
+import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from "@milkdown/core";
+import {blockquoteKeymap, commonmark} from "@milkdown/preset-commonmark";
+import {Ctx} from "@milkdown/ctx";
+import {listener, listenerCtx} from "@milkdown/plugin-listener";
+import {nord} from "@milkdown/theme-nord";
+// plugins
+import {emoji} from "@milkdown/plugin-emoji";
+import {history} from "@milkdown/plugin-history";
+import {indent} from "@milkdown/plugin-indent";
+import {trailing} from "@milkdown/plugin-trailing";
+import {cursor} from "@milkdown/plugin-cursor";
+import {clipboard} from "@milkdown/plugin-clipboard";
+import {upload, uploadConfig, Uploader} from '@milkdown/plugin-upload';
+import {math} from '@milkdown/plugin-math';
+import 'katex/dist/katex.min.css';
+import {prism, prismConfig} from '@milkdown/plugin-prism';
+import 'prism-themes/themes/prism-nord.css'
+import markdown from 'refractor/lang/markdown'
+import css from 'refractor/lang/css'
+import javascript from 'refractor/lang/javascript'
+import typescript from 'refractor/lang/typescript'
 
 const props = defineProps<{ modelValue: Content }>()
 const emit = defineEmits(['update:modelValue'])
@@ -33,104 +42,96 @@ const content = computed({
 })
 
 watch(content, (value) => {
-  loadEditor(value.text)
+  setText(value.text)
 })
 
-const editorEl = ref<HTMLElement>()
-let editor: EditorJS
-let editorReady: Promise<void>
-
-onMounted(() => {
-  editorReady = initEditor()
-})
-
-async function initEditor() {
-  editor = new EditorJS({
-    readOnly: false,
-    holder: editorEl.value,
-    minHeight: 48,
-    placeholder: '说些什么...',
-    logLevel: 'ERROR' as any,
-    tools: {
-      header: {
-        class: Header,
-        inlineToolbar: ['link'],
-        config: {
-          placeholder: 'Header'
-        },
-        shortcut: 'CMD+SHIFT+H'
-      },
-      image: {
-        class: ImageTool,
-        config: {
-          uploader: {
-            uploadByFile,
-            uploadByUrl,
-          }
-        }
-      },
-      list: {
-        class: List,
-        inlineToolbar: true,
-        shortcut: 'CMD+SHIFT+L'
-      },
-      checklist: {
-        class: Checklist,
-        inlineToolbar: true
-      },
-      quote: {
-        class: Quote,
-        inlineToolbar: true,
-        config: {
-          quotePlaceholder: 'Enter a quote',
-          captionPlaceholder: "Quote's author"
-        },
-        shortcut: 'CMD+SHIFT+O'
-      },
-      code: {
-        class: Code,
-        shortcut: 'CMD+SHIFT+C'
-      },
-      delimiter: Delimiter,
-      inlineCode: {
-        class: InlineCode,
-        shortcut: 'CMD+SHIFT+C'
-      },
-      linkTool: LinkTool,
-      embed: Embed,
-      table: {
-        class: Table,
-        inlineToolbar: true,
-        shortcut: 'CMD+ALT+T'
-      },
-      math: {
-        class: MathTex
-      }
-    },
-    onChange: onChange,
-  })
-  await editor.isReady
-}
-
-async function loadEditor(text: string | undefined) {
+async function setText(text: string | undefined) {
+  await editor
   if (text === undefined) return
-  await editorReady
-  if (text === '') {
-    // editor.render() throws 'holder is undefined' when content is empty
-    await editor.clear()
-  } else {
-    await editor.render({
-      blocks: parseMarkdownToEditorJs(text)
-    })
-  }
 }
 
-async function onChange(api: API, event: any) {
-  const data = await api.saver.save()
-  content.value.text = parseEditorJsToMarkdown(data.blocks)
+let editor: Promise<Editor>
+const editorRef = ref<HTMLElement>()
+onMounted(() => {
+  const editable = () => true;
+  editor = Editor.make()
+      .config((ctx) => {
+        ctx.set(rootCtx, editorRef.value);
+        ctx.set(defaultValueCtx, '# Hello milkdown');
+        ctx.get(listenerCtx).markdownUpdated(onChange);
+        ctx.update(editorViewOptionsCtx, (prev) => ({
+          ...prev,
+          editable,
+        }))
+        ctx.set(blockquoteKeymap.key, {
+          WrapInBlockquote: ['Mod-Shift-b', 'Mod-b'],
+        })
+        // ctx.set(block.key, {
+        //   view:  (view) => {
+        //     const content = document.createElement('div');
+        //     content.innerText = ''
+        //
+        //     const provider = new BlockProvider({
+        //       ctx,
+        //       content: content,
+        //     });
+        //
+        //     return {
+        //       update: (updatedView: EditorView, prevState: any) => {
+        //         console.log('update', updatedView)
+        //         provider.update(updatedView);
+        //       },
+        //       destroy: () => {
+        //         provider.destroy();
+        //         content.remove();
+        //       },
+        //       drop: () => {
+        //         console.log('drop')
+        //       },
+        //     }
+        //   }
+        // })
+        // ctx.set(indentConfig, {
+        //   type: 'tab',
+        //   size: 2,
+        // })
+        ctx.set(prismConfig.key, {
+          configureRefractor: (refractor) => {
+            refractor.register(markdown)
+            refractor.register(css)
+            refractor.register(javascript)
+            refractor.register(typescript)
+          },
+        })
+        ctx.update(uploadConfig.key, (prev) => ({
+          ...prev,
+          uploader,
+        }));
+      })
+      .config(nord)
+      .use(listener)
+      .use(emoji)
+      .use(commonmark)
+      .use(history)
+      .use(prism)
+      .use(indent)
+      .use(trailing)
+      .use(upload)
+      .use(cursor)
+      .use(clipboard)
+      .use(math)
+      .create()
+})
+
+let timer = 0
+const onChange = (ctx: Ctx, markdown: string, prevMarkdown: string | null) => {
+  if (timer) clearTimeout(timer)
+  timer = setTimeout(() => {
+    console.log(markdown)
+  }, 500)
 }
 
-async function uploadByFile(file: File) {
+const uploadByFile = async (file: File) => {
   const r = await fetch('/api/rpc/upload', {
     method: 'POST',
     body: file,
@@ -140,24 +141,43 @@ async function uploadByFile(file: File) {
     }
   })
   const data = await r.json()
-  return {
-    success: 1,
-    file: {
-      url: '/api/rpc/file?id=' + data.id,
+  return '/api/rpc/file?id=' + data.id
+}
+const uploader: Uploader = async (files, schema) => {
+  const allowedTypes = ['image'];
+  const images: File[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files.item(i);
+    if (!file) {
+      continue;
+    }
+    for (const type of allowedTypes) {
+      if (file.type.includes(type)) {
+        images.push(file);
+        break;
+      }
     }
   }
-}
+  return await Promise.all(
+      images.map(async (image) => {
+        const src = await uploadByFile(image);
+        const alt = image.name;
+        return schema.nodes.image.createAndFill({
+          src,
+          alt,
+        })!
+      }),
+  );
+};
 
-async function uploadByUrl(url: string) {
-  return {
-    success: 1,
-    file: {
-      url: url,
-    }
-  }
-}
 </script>
 
-<style scoped>
+<style>
+.milkdown {
+//min-height: 10rem;
+}
 
+.milkdown *:focus-visible {
+  outline: none;
+}
 </style>

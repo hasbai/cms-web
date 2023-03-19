@@ -9,8 +9,8 @@
     <n-modal v-model:show="showModal">
       <div>
         <div v-for="item in insertItems" :key="item">
-          {{item}}
-          <n-button @click="insert(item)">{{item}}</n-button>
+          {{ item }}
+          <n-button @click="">{{ item }}</n-button>
         </div>
       </div>
     </n-modal>
@@ -20,9 +20,8 @@
 <script lang="ts" setup>
 import {computed} from "vue";
 import {Content} from "@/models";
-
 // milkdown
-import {Editor, editorViewOptionsCtx, rootCtx} from "@milkdown/core";
+import {Editor, EditorStatus, editorViewOptionsCtx, rootCtx} from "@milkdown/core";
 import {replaceAll} from "@milkdown/utils";
 import {blockquoteKeymap, commonmark} from "@milkdown/preset-commonmark";
 import {Ctx} from "@milkdown/ctx";
@@ -68,13 +67,14 @@ watch(content, (value) => {
 
 async function setText(text: string | undefined) {
   if (text === undefined) return
-  if (!editor) return
-  console.log(editor.status)
+  if (!isReady) return
+  await isReady
   editor.action(replaceAll(text))
   focus()
 }
 
 let editor: Editor;
+let isReady: Promise<void>;
 const editable = () => true;
 const pluginViewFactory = usePluginViewFactory();
 const slash = slashFactory('my-slash');
@@ -151,6 +151,13 @@ useEditor((root) => {
       .use(clipboard)
       .use(math)
       .use(slash)
+  isReady = new Promise((resolve) => {
+    editor.onStatusChange((status: EditorStatus) => {
+      if (status === EditorStatus.Created) {
+        resolve()
+      }
+    });
+  })
   return editor
 })
 
@@ -205,7 +212,7 @@ const uploader: Uploader = async (files, schema) => {
 const focused = ref(false)
 const onFocus = (e: FocusEvent) => {
   setTimeout(() => {
-    switch(e.type){
+    switch (e.type) {
       case 'focusin':
         focused.value = true
         break
@@ -217,7 +224,7 @@ const onFocus = (e: FocusEvent) => {
 }
 const focus = () => {
   const el = document.querySelector('.milkdown .editor')
-  if(el instanceof HTMLElement) {
+  if (el instanceof HTMLElement) {
     el.focus()
   }
 }
@@ -225,11 +232,10 @@ const focus = () => {
 const insertItems = ['image', 'audio', 'video']
 const showModal = ref(false)
 const onClick = () => {
-  console.log(focused.value)
-  // if(!focused.value) {
-  //   emit('send')
-  //   return
-  // }
+  if (!focused.value) {
+    emit('send')
+    return
+  }
   showModal.value = true
 }
 </script>

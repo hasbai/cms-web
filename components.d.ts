@@ -11,7 +11,6 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     About: typeof import('./src/components/About.vue')['default']
     Bar: typeof import('./src/components/Bar.vue')['default']
-    Geo: typeof import('@/pages/edit/Geo.vue')['default']
     MdiArchiveArrowDownOutline: typeof import('~icons/mdi/archive-arrow-down-outline')['default']
     MdiArrowLeft: typeof import('~icons/mdi/arrow-left')['default']
     MdiCheck: typeof import('~icons/mdi/check')['default']
@@ -25,7 +24,6 @@ declare module '@vue/runtime-core' {
     MdiWeatherCloudy: typeof import('~icons/mdi/weather-cloudy')['default']
     MdiWeatherPartlyCloudy: typeof import('~icons/mdi/weather-partly-cloudy')['default']
     MdiWeatherRainy: typeof import('~icons/mdi/weather-rainy')['default']
-    MdiWeatherSnowy: typeof import('~icons/mdi/weather-snowy')['default']
     MdiWhiteBalanceSunny: typeof import('~icons/mdi/white-balance-sunny')['default']
     Navigation: typeof import('./src/components/Navigation.vue')['default']
     NButton: typeof import('naive-ui')['NButton']

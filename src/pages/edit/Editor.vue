@@ -1,5 +1,20 @@
 <template>
-  <div ref="editorRef" autofocus class="mb-2"/>
+  <div>
+    <Milkdown class="mb-2"
+              @focusin="onFocus" @focusout="onFocus"/>
+    <v-btn :loading="loading" class="fixed-btn" icon variant="text" size="large" @click="onClick">
+      <mdi-plus v-if="focused"/>
+      <mdi-check v-else/>
+    </v-btn>
+    <n-modal v-model:show="showModal">
+      <div>
+        <div v-for="item in insertItems" :key="item">
+          {{item}}
+          <n-button @click="insert(item)">{{item}}</n-button>
+        </div>
+      </div>
+    </n-modal>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -7,10 +22,12 @@ import {computed} from "vue";
 import {Content} from "@/models";
 
 // milkdown
-import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from "@milkdown/core";
+import {Editor, editorViewOptionsCtx, rootCtx} from "@milkdown/core";
+import {replaceAll} from "@milkdown/utils";
 import {blockquoteKeymap, commonmark} from "@milkdown/preset-commonmark";
 import {Ctx} from "@milkdown/ctx";
 import {listener, listenerCtx} from "@milkdown/plugin-listener";
+import "@milkdown/theme-nord/style.css"
 import {nord} from "@milkdown/theme-nord";
 // plugins
 import {emoji} from "@milkdown/plugin-emoji";
@@ -20,6 +37,8 @@ import {trailing} from "@milkdown/plugin-trailing";
 import {cursor} from "@milkdown/plugin-cursor";
 import {clipboard} from "@milkdown/plugin-clipboard";
 import {upload, uploadConfig, Uploader} from '@milkdown/plugin-upload';
+import {slashFactory} from '@milkdown/plugin-slash';
+import Slash from "@/pages/edit/editor/Slash.vue";
 import {math} from '@milkdown/plugin-math';
 import 'katex/dist/katex.min.css';
 import {prism, prismConfig} from '@milkdown/plugin-prism';
@@ -28,9 +47,11 @@ import markdown from 'refractor/lang/markdown'
 import css from 'refractor/lang/css'
 import javascript from 'refractor/lang/javascript'
 import typescript from 'refractor/lang/typescript'
+import {usePluginViewFactory} from '@prosemirror-adapter/vue';
+import {Milkdown, useEditor} from "@milkdown/vue";
 
-const props = defineProps<{ modelValue: Content }>()
-const emit = defineEmits(['update:modelValue'])
+const props = defineProps<{ modelValue: Content, loading: boolean }>()
+const emit = defineEmits(['update:modelValue', 'send'])
 
 const content = computed({
   get() {
@@ -46,18 +67,22 @@ watch(content, (value) => {
 })
 
 async function setText(text: string | undefined) {
-  await editor
   if (text === undefined) return
+  if (!editor) return
+  console.log(editor.status)
+  editor.action(replaceAll(text))
+  focus()
 }
 
-let editor: Promise<Editor>
-const editorRef = ref<HTMLElement>()
-onMounted(() => {
-  const editable = () => true;
+let editor: Editor;
+const editable = () => true;
+const pluginViewFactory = usePluginViewFactory();
+const slash = slashFactory('my-slash');
+useEditor((root) => {
   editor = Editor.make()
       .config((ctx) => {
-        ctx.set(rootCtx, editorRef.value);
-        ctx.set(defaultValueCtx, '# Hello milkdown');
+        ctx.set(rootCtx, root);
+        // ctx.set(defaultValueCtx, '# Hello milkdown');
         ctx.get(listenerCtx).markdownUpdated(onChange);
         ctx.update(editorViewOptionsCtx, (prev) => ({
           ...prev,
@@ -95,6 +120,11 @@ onMounted(() => {
         //   type: 'tab',
         //   size: 2,
         // })
+        ctx.set(slash.key, {
+          view: pluginViewFactory({
+            component: Slash
+          })
+        })
         ctx.set(prismConfig.key, {
           configureRefractor: (refractor) => {
             refractor.register(markdown)
@@ -120,11 +150,13 @@ onMounted(() => {
       .use(cursor)
       .use(clipboard)
       .use(math)
-      .create()
+      .use(slash)
+  return editor
 })
 
 let timer = 0
 const onChange = (ctx: Ctx, markdown: string, prevMarkdown: string | null) => {
+  if (markdown === prevMarkdown) return
   if (timer) clearTimeout(timer)
   timer = setTimeout(() => {
     console.log(markdown)
@@ -170,6 +202,36 @@ const uploader: Uploader = async (files, schema) => {
   );
 };
 
+const focused = ref(false)
+const onFocus = (e: FocusEvent) => {
+  setTimeout(() => {
+    switch(e.type){
+      case 'focusin':
+        focused.value = true
+        break
+      case 'focusout':
+        focused.value = false
+        break
+    }
+  }, 100)
+}
+const focus = () => {
+  const el = document.querySelector('.milkdown .editor')
+  if(el instanceof HTMLElement) {
+    el.focus()
+  }
+}
+
+const insertItems = ['image', 'audio', 'video']
+const showModal = ref(false)
+const onClick = () => {
+  console.log(focused.value)
+  // if(!focused.value) {
+  //   emit('send')
+  //   return
+  // }
+  showModal.value = true
+}
 </script>
 
 <style>

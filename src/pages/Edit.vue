@@ -1,10 +1,11 @@
 <template>
   <main>
-    <Editor v-model="contentWrapper.content"/>
+    <MilkdownProvider>
+      <ProsemirrorAdapterProvider>
+        <Editor v-model="contentWrapper.content" @send="send" :loading="loading"/>
+      </ProsemirrorAdapterProvider>
+    </MilkdownProvider>
     <Geo v-model="contentWrapper.content"></Geo>
-    <v-btn :loading="loading" class="fixed-btn" icon size="large" @click="send">
-      <mdi-check/>
-    </v-btn>
   </main>
 </template>
 
@@ -15,6 +16,8 @@ import Geo from "@/pages/edit/Geo.vue";
 import {Content} from "@/models";
 import {onActivated, reactive, ref} from "vue";
 import Editor from "@/pages/edit/Editor.vue";
+import {MilkdownProvider} from "@milkdown/vue";
+import {ProsemirrorAdapterProvider} from "@prosemirror-adapter/vue";
 
 const router = useRouter()
 const loading = ref(false)

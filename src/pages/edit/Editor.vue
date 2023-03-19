@@ -6,11 +6,21 @@
       <mdi-plus v-if="focused"/>
       <mdi-check v-else/>
     </v-btn>
-    <n-modal v-model:show="showModal">
-      <div>
-        <div v-for="item in insertItems" :key="item">
-          {{ item }}
-          <n-button @click="">{{ item }}</n-button>
+    <n-modal v-model:show="showModal" :auto-focus="false" :closable="false"
+             class="modal" preset="card"
+             @after-leave="onClose">
+      <div class="flex justify-between">
+        <input ref="input" accept="image/*" style="display:none" type="file" @change="onUpload">
+        <div v-for="item in insertItems" :key="item" class="mx-2 my-2">
+          <n-button style="width: 5rem; height: 5rem" @click="onUploadClick(item)">
+            <template #icon>
+              <n-icon size="4rem">
+                <mdi-image v-if="item === 'image'"/>
+                <mdi-video v-else-if="item === 'video'"/>
+                <mdi-music v-else-if="item === 'audio'"/>
+              </n-icon>
+            </template>
+          </n-button>
         </div>
       </div>
     </n-modal>
@@ -22,11 +32,10 @@ import {computed} from "vue";
 import {Content} from "@/models";
 // milkdown
 import {Editor, EditorStatus, editorViewOptionsCtx, rootCtx} from "@milkdown/core";
-import {replaceAll} from "@milkdown/utils";
+import {insert, replaceAll} from "@milkdown/utils";
 import {blockquoteKeymap, commonmark} from "@milkdown/preset-commonmark";
 import {Ctx} from "@milkdown/ctx";
 import {listener, listenerCtx} from "@milkdown/plugin-listener";
-import "@milkdown/theme-nord/style.css"
 import {nord} from "@milkdown/theme-nord";
 // plugins
 import {emoji} from "@milkdown/plugin-emoji";
@@ -48,6 +57,7 @@ import javascript from 'refractor/lang/javascript'
 import typescript from 'refractor/lang/typescript'
 import {usePluginViewFactory} from '@prosemirror-adapter/vue';
 import {Milkdown, useEditor} from "@milkdown/vue";
+import video from "@/pages/edit/editor/video";
 
 const props = defineProps<{ modelValue: Content, loading: boolean }>()
 const emit = defineEmits(['update:modelValue', 'send'])
@@ -151,6 +161,7 @@ useEditor((root) => {
       .use(clipboard)
       .use(math)
       .use(slash)
+      .use(video)
   isReady = new Promise((resolve) => {
     editor.onStatusChange((status: EditorStatus) => {
       if (status === EditorStatus.Created) {
@@ -166,11 +177,11 @@ const onChange = (ctx: Ctx, markdown: string, prevMarkdown: string | null) => {
   if (markdown === prevMarkdown) return
   if (timer) clearTimeout(timer)
   timer = setTimeout(() => {
-    console.log(markdown)
+    content.value.text = markdown
   }, 500)
 }
 
-const uploadByFile = async (file: File) => {
+const uploadFile = async (file: File) => {
   const r = await fetch('/api/rpc/upload', {
     method: 'POST',
     body: file,
@@ -199,7 +210,7 @@ const uploader: Uploader = async (files, schema) => {
   }
   return await Promise.all(
       images.map(async (image) => {
-        const src = await uploadByFile(image);
+        const src = await uploadFile(image);
         const alt = image.name;
         return schema.nodes.image.createAndFill({
           src,
@@ -229,7 +240,7 @@ const focus = () => {
   }
 }
 
-const insertItems = ['image', 'audio', 'video']
+const insertItems = ['image', 'video', 'audio',]
 const showModal = ref(false)
 const onClick = () => {
   if (!focused.value) {
@@ -238,14 +249,62 @@ const onClick = () => {
   }
   showModal.value = true
 }
+
+const input = ref<HTMLInputElement>()
+const onUploadClick = (item: string) => {
+  input.value!.setAttribute('accept', `${item}/*`)
+  input.value!.click()
+}
+const onUpload = async () => {
+  const files = input.value!.files
+  if (!files || !files.length) return
+  const type = input.value!.accept.split('/')[0].trim()
+  if (!files[0].type.includes(type)) return
+  const url = await uploadFile(files[0])
+  console.log(url)
+  switch (type) {
+    case 'image':
+      editor.action(insert(`![${files[0].name}](${url})`))
+      break
+    case 'video':
+      break
+    case 'audio':
+      break
+  }
+  showModal.value = false
+}
+
+const onClose = () => {
+  setTimeout(() => {
+    focus()
+  }, 100)
+}
 </script>
 
 <style>
-.milkdown {
-//min-height: 10rem;
+.milkdown p {
+  margin: 1rem 0;
+}
+
+.milkdown img {
+  max-height: 50vh;
+  max-width: 80vw;
+  display: block;
+  margin: 0 auto;
+}
+
+.milkdown video {
+  margin: 1rem auto;
+  display: block;
+  max-width: 100%;
 }
 
 .milkdown *:focus-visible {
   outline: none;
+}
+
+.modal {
+  width: 50%;
+  min-width: 350px;
 }
 </style>

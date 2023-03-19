@@ -6,6 +6,7 @@ import { registerPinia } from '@/plugins/store'
 
 import '@/css/index.css'
 import 'vuetify/styles'
+import '@milkdown/theme-nord/style.css'
 
 const app = createApp(App)
 
